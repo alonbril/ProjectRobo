@@ -1,0 +1,23 @@
+Final Project – 3D Transformation, Modeling, Animation, Texturing, Shading and Lights
+
+Abstract:
+   The goal is to implement an application of animated objects, controlled by user.
+The code is in C# with OpenGL.
+
+Details:
+   1. (Optional) Objects and environment definitions are stored in file (your format). 
+            Description includes object’s geometry, lights features and texture information
+   2. Objects and view controlled by mouse, keyboard and standard elements of user   
+          interface: scrollbars, radio buttons, check boxes etc. 
+       Changed dynamically:
+          Light properties, shadows and reflections
+          Objects’ form and position
+          Textures
+       View freely varies: 
+           Orthogonal-perspective projection and their parameters
+           Point of view parameters
+
+Examples of modeling subject to choose:
+ - Robot moving in corridor
+ - Chessboard with figures (no play algorithm). Figure movement implemented
+ - Dolly with “wardrobe”
