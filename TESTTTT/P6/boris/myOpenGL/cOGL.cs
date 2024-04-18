@@ -472,7 +472,7 @@ namespace OpenGL
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);
             GenerateTextures();
         }
-
+        //test to see if its commited
 
 
         public float ARM_angle;
