@@ -18,3 +18,13 @@ C:\Users\alonb\Desktop\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.csproj.Gener
 C:\Users\alonb\Desktop\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.csproj.CoreCompileInputs.cache
 C:\Users\alonb\Desktop\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.exe
 C:\Users\alonb\Desktop\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.pdb
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\bin\Debug\myOpenGL.exe.config
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\bin\Debug\myOpenGL.exe
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\bin\Debug\myOpenGL.pdb
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.csproj.AssemblyReference.cache
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.Form1.resources
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.Properties.Resources.resources
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.csproj.GenerateResource.cache
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.csproj.CoreCompileInputs.cache
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.exe
+C:\Users\alonb\Source\Repos\ProgectRobo\TESTTTT\P6\boris\myOpenGL\obj\Debug\myOpenGL.pdb

@@ -22,6 +22,7 @@ namespace OpenGL
             Height = p.Height;
             InitializeGL();
             obj = GLU.gluNewQuadric(); //!!!
+            
             PrepareLists();
         }
 
@@ -96,6 +97,96 @@ namespace OpenGL
             GL.glVertex3f(0.0f, 0.0f, -3.0f);
             GL.glVertex3f(0.0f, 0.0f, 3.0f);
             GL.glEnd();
+        }
+        public uint[] Textures = new uint[6];
+        
+        void GenerateTextures()
+            {
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); 
+            GL.glGenTextures(6, Textures);
+            string[] imagesName ={ "front.bmp","back.bmp",
+		                            "left.bmp","right.bmp","top.bmp","bottom.bmp",};
+            for (int i = 0; i < 6; i++)
+            {
+                Bitmap image = new Bitmap(imagesName[i]);
+                image.RotateFlip(RotateFlipType.RotateNoneFlipY); //Y axis in Windows is directed downwards, while in OpenGL-upwards
+                System.Drawing.Imaging.BitmapData bitmapdata;
+                Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
+
+                bitmapdata = image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+                GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[i]);
+                //2D for XYZ
+                GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, (int)GL.GL_RGB8, image.Width, image.Height,
+                                                              0, GL.GL_BGR_EXT, GL.GL_UNSIGNED_byte, bitmapdata.Scan0);
+                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, (int)GL.GL_LINEAR);
+                GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, (int)GL.GL_LINEAR);
+
+                image.UnlockBits(bitmapdata);
+                image.Dispose();
+            }
+        }
+        void drawBackGorund(int width)
+        {
+    
+            GL.glPushMatrix();
+        
+            GL.glTranslatef(-width / 2, -width / 2, -width / 2);
+
+
+            //GL.glColor3f(1f, 1f, 1f);
+            GL.glEnable(GL.GL_TEXTURE_2D);
+            
+            // front
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[0]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, 0f, 0f);
+            GL.glTexCoord2f(0f, 1.0f); GL.glVertex3f(0f, 0f, width);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, 0f, width);
+            GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, 0f, 0f);
+            GL.glEnd();
+            // back
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[1]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, width, 0f);
+            GL.glTexCoord2f(0f, 1f); GL.glVertex3f(0f, width, width);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, width, width);
+            GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, width, 0f);
+            GL.glEnd();
+            // left
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[2]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, 0f, 0f);
+            GL.glTexCoord2f(0f, 1f); GL.glVertex3f(0f, width, 0f);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(0f, width, width);
+            GL.glTexCoord2f(1f, 0f);; GL.glVertex3f(0f, 0f, width);
+            GL.glEnd();
+            // right
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[3]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(width, 0f, 0f);
+            GL.glTexCoord2f(0f, 1f); GL.glVertex3f(width, 0f, width);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, width, width);
+            GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, width, 0f);
+            GL.glEnd();
+            // top
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[4]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, 0f, width);
+            GL.glTexCoord2f(0f, 1f); GL.glVertex3f(0f, width, width);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, width, width);
+            GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, 0f, width);
+            GL.glEnd();
+            // bottom
+            GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[5]);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, 0f, 0f);
+            GL.glTexCoord2f(0f, 1f); GL.glVertex3f(0f, width, 0f);
+            GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(width, width, 0f);
+            GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, 0f, 0f);
+            GL.glEnd();
+
+         GL.glPopMatrix();
         }
         void DrawFloor()
         {
@@ -269,6 +360,8 @@ namespace OpenGL
             GL.glPopMatrix();
 
 
+
+
             // really draw floor 
             //( half-transparent ( see its color's alpha byte)))
             // in order to see reflected objects 
@@ -283,6 +376,10 @@ namespace OpenGL
             DrawFigures();
 
             GL.glFlush();
+            GL.glDisable(GL.GL_LIGHTING);
+            drawBackGorund(50);
+            GL.glEnable(GL.GL_LIGHTING);
+            GL.glEnable(GL.GL_TEXTURE_2D);
 
             WGL.wglSwapBuffers(m_uint_DC);
 
@@ -373,6 +470,7 @@ namespace OpenGL
 
             //save the current MODELVIEW Matrix (now it is Identity)
             GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);
+            GenerateTextures();
         }
 
 
