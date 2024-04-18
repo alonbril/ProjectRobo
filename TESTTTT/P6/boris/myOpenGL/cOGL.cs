@@ -12,6 +12,8 @@ namespace OpenGL
         Control p;
         int Width;
         int Height;
+        float[] lightPosition = { 0.0f, 0.0f, 1.0f, 0.0f }; // Default light position
+        float[] lightDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f }; // Default light color
 
         GLUquadric obj;
 
@@ -22,7 +24,7 @@ namespace OpenGL
             Height = p.Height;
             InitializeGL();
             obj = GLU.gluNewQuadric(); //!!!
-            
+
             PrepareLists();
         }
 
@@ -99,13 +101,13 @@ namespace OpenGL
             GL.glEnd();
         }
         public uint[] Textures = new uint[6];
-        
+
         void GenerateTextures()
-            {
-            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); 
+        {
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
             GL.glGenTextures(6, Textures);
             string[] imagesName ={ "front.bmp","back.bmp",
-		                            "left.bmp","right.bmp","top.bmp","bottom.bmp",};
+                                    "left.bmp","right.bmp","top.bmp","bottom.bmp",};
             for (int i = 0; i < 6; i++)
             {
                 Bitmap image = new Bitmap(imagesName[i]);
@@ -128,15 +130,15 @@ namespace OpenGL
         }
         void drawBackGorund(int width)
         {
-    
+
             GL.glPushMatrix();
-        
+
             GL.glTranslatef(-width / 2, -width / 2, -width / 2);
 
 
             //GL.glColor3f(1f, 1f, 1f);
             GL.glEnable(GL.GL_TEXTURE_2D);
-            
+
             // front
             GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[0]);
             GL.glBegin(GL.GL_QUADS);
@@ -159,7 +161,7 @@ namespace OpenGL
             GL.glTexCoord2f(0.0f, 0.0f); GL.glVertex3f(0f, 0f, 0f);
             GL.glTexCoord2f(0f, 1f); GL.glVertex3f(0f, width, 0f);
             GL.glTexCoord2f(1.0f, 1.0f); GL.glVertex3f(0f, width, width);
-            GL.glTexCoord2f(1f, 0f);; GL.glVertex3f(0f, 0f, width);
+            GL.glTexCoord2f(1f, 0f); ; GL.glVertex3f(0f, 0f, width);
             GL.glEnd();
             // right
             GL.glBindTexture(GL.GL_TEXTURE_2D, Textures[3]);
@@ -186,7 +188,7 @@ namespace OpenGL
             GL.glTexCoord2f(1f, 0f); GL.glVertex3f(width, 0f, 0f);
             GL.glEnd();
 
-         GL.glPopMatrix();
+            GL.glPopMatrix();
         }
         void DrawFloor()
         {
@@ -245,149 +247,61 @@ namespace OpenGL
 
         public void Draw()
         {
-            
-            
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
 
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
             GL.glLoadIdentity();
 
-            // not trivial
-            double[] ModelVievMatrixBeforeSpecificTransforms = new double[16];
-            double[] CurrentRotationTraslation = new double[16];
+            // Increase the distance between the eye position and the target position
+            GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2] + 10, // Increase the z-coordinate by 10
+                           ScrollValue[3], ScrollValue[4], ScrollValue[5],
+                           ScrollValue[6], ScrollValue[7], ScrollValue[8]);
 
-            GLU.gluLookAt(ScrollValue[0], ScrollValue[1], ScrollValue[2],
-                       ScrollValue[3], ScrollValue[4], ScrollValue[5],
-                       ScrollValue[6], ScrollValue[7], ScrollValue[8]);
             GL.glTranslatef(0.0f, 0.0f, -1.0f);
 
-            DrawOldAxes();
-            // robot
-            //save current ModelView Matrix values
-            //in ModelVievMatrixBeforeSpecificTransforms array
-            //ModelView Matrix ========>>>>>> ModelVievMatrixBeforeSpecificTransforms
-            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, ModelVievMatrixBeforeSpecificTransforms);
-            //ModelView Matrix was saved, so
-            GL.glLoadIdentity(); // make it identity matrix
+            // Draw the background
+            drawBackGorund(50); // Pass the desired width of the background here
 
-            //make transformation in accordance to KeyCode
-            float delta;
-            if (intOptionC != 0)
-            {
-                delta = 5.0f * Math.Abs(intOptionC) / intOptionC; // signed 5
-
-                switch (Math.Abs(intOptionC))
-                {
-                    case 1:
-                        GL.glRotatef(delta, 1, 0, 0);
-                        break;
-                    case 2:
-                        GL.glRotatef(delta, 0, 1, 0);
-                        break;
-                    case 3:
-                        GL.glRotatef(delta, 0, 0, 1);
-                        break;
-                    case 4:
-                        GL.glTranslatef(delta / 20, 0, 0);
-                        break;
-                    case 5:
-                        GL.glTranslatef(0, delta / 20, 0);
-                        break;
-                    case 6:
-                        GL.glTranslatef(0, 0, delta / 20);
-                        break;
-                }
-            }
-            //as result - the ModelView Matrix now is pure representation
-            //of KeyCode transform and only it !!!
-
-            //save current ModelView Matrix values
-            //in CurrentRotationTraslation array
-            //ModelView Matrix =======>>>>>>> CurrentRotationTraslation
-            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, CurrentRotationTraslation);
-
-            //The GL.glLoadMatrix function replaces the current matrix with
-            //the one specified in its argument.
-            //The current matrix is the
-            //projection matrix, modelview matrix, or texture matrix,
-            //determined by the current matrix mode (now is ModelView mode)
-            GL.glLoadMatrixd(AccumulatedRotationsTraslations); //Global Matrix
-
-            //The GL.glMultMatrix function multiplies the current matrix by
-            //the one specified in its argument.
-            //That is, if M is the current matrix and T is the matrix passed to
-            //GL.glMultMatrix, then M is replaced with M • T
-            GL.glMultMatrixd(CurrentRotationTraslation);
-
-            //save the matrix product in AccumulatedRotationsTraslations
-            GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX, AccumulatedRotationsTraslations);
-
-            //replace ModelViev Matrix with stored ModelVievMatrixBeforeSpecificTransforms
-            GL.glLoadMatrixd(ModelVievMatrixBeforeSpecificTransforms);
-            //multiply it by KeyCode defined AccumulatedRotationsTraslations matrix
-            GL.glMultMatrixd(AccumulatedRotationsTraslations);
-
-            GL.glEnable(GL.GL_BLEND);
-            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-
-            //only floor, draw only to STENCIL buffer
-            GL.glEnable(GL.GL_STENCIL_TEST);
-            GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
-            GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xFFFFFFFF); // draw floor always
-            GL.glColorMask((byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE);
-            GL.glDisable(GL.GL_DEPTH_TEST);
-
-            DrawFloor();
-
-            // restore regular settings
-            GL.glColorMask((byte)GL.GL_TRUE, (byte)GL.GL_TRUE, (byte)GL.GL_TRUE, (byte)GL.GL_TRUE);
-            GL.glEnable(GL.GL_DEPTH_TEST);
-            // reflection is drawn only where STENCIL buffer value equal to 1
-            GL.glStencilFunc(GL.GL_EQUAL, 1, 0xFFFFFFFF);
-            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
-            GL.glEnable(GL.GL_STENCIL_TEST);
-
-            // draw reflected scene
+            // Save the current matrix state
             GL.glPushMatrix();
-            GL.glScalef(1, 1, -1); //swap on Z axis
-            GL.glEnable(GL.GL_CULL_FACE);
-            GL.glCullFace(GL.GL_BACK);
-            DrawFigures();
-            GL.glCullFace(GL.GL_FRONT);
-            GL.glDisable(GL.GL_CULL_FACE);
+
+            // Draw the object
+            GL.glTranslatef(xShift, yShift, zShift); // Translate the object
+            GL.glRotatef(xAngle, 1.0f, 0.0f, 0.0f); // Rotate around the x-axis
+            GL.glRotatef(yAngle, 0.0f, 1.0f, 0.0f); // Rotate around the y-axis
+            GL.glRotatef(zAngle, 0.0f, 0.0f, 1.0f); // Rotate around the z-axis
+            DrawFigures(); // Assuming this method draws your dynamic object
+
+            // Restore the matrix state
             GL.glPopMatrix();
 
+            // Save the current matrix state for reflection
+            GL.glPushMatrix();
 
+            // Apply reflection transformation
+            GL.glScalef(1, 1, -1); // Scale on Z axis to reverse
 
+            // Draw the reflected object
+            GL.glTranslatef(xShift, yShift, -zShift); // Translate the object
+            GL.glRotatef(xAngle, 1.0f, 0.0f, 0.0f); // Reflect the rotation
+            GL.glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
+            GL.glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
+            DrawFigures(); // Assuming this method draws your dynamic object
 
-            // really draw floor 
-            //( half-transparent ( see its color's alpha byte)))
-            // in order to see reflected objects 
-            GL.glDepthMask((byte)GL.GL_FALSE);
-            DrawFloor();
-            GL.glDepthMask((byte)GL.GL_TRUE);
-            // Disable GL.GL_STENCIL_TEST to show All, else it will be cut on GL.GL_STENCIL
-            GL.glDisable(GL.GL_STENCIL_TEST);
-
-            //DrawAxes();
-
-            DrawFigures();
-
-            GL.glFlush();
-            GL.glDisable(GL.GL_LIGHTING);
-            drawBackGorund(50);
-            GL.glEnable(GL.GL_LIGHTING);
-            GL.glEnable(GL.GL_TEXTURE_2D);
+            // Restore the matrix state
+            GL.glPopMatrix();
 
             WGL.wglSwapBuffers(m_uint_DC);
-
         }
+
+
+
 
         protected virtual void InitializeGL()
         {
-            
+
 
             m_uint_HWND = (uint)p.Handle.ToInt32();
             m_uint_DC = WGL.GetDC(m_uint_HWND);
@@ -462,7 +376,7 @@ namespace OpenGL
             GL.glLoadIdentity();
 
             //nice 3D
-            GLU.gluPerspective(45.0, 1.0, 0.4, 100.0);
+            GLU.gluPerspective(45.0, 1.0, 0.4, 1000.0);
 
 
             GL.glMatrixMode(GL.GL_MODELVIEW);
