@@ -136,7 +136,7 @@ namespace OpenGL
             GL.glTranslatef(-width / 2, -width / 2, -width / 2);
 
 
-            //GL.glColor3f(1f, 1f, 1f);
+            GL.glColor3f(1f, 1f, 1f);
             GL.glEnable(GL.GL_TEXTURE_2D);
 
             // front
@@ -376,7 +376,7 @@ namespace OpenGL
             GL.glLoadIdentity();
 
             //nice 3D
-            GLU.gluPerspective(45.0, 1.0, 0.4, 1000.0);
+            GLU.gluPerspective(45.0, 1.0, 0.4, 3000);
 
 
             GL.glMatrixMode(GL.GL_MODELVIEW);
