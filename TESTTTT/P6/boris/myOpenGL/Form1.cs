@@ -40,7 +40,7 @@ namespace myOpenGL
 
         private void panel1_Resize(object sender, EventArgs e)
         {
-            cGL.OnResize();
+            //cGL.OnResize();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -194,5 +194,9 @@ namespace myOpenGL
             timer1.Enabled = checkBox1.Checked; 
         }
 
+        private void hScrollBar10_Scroll(object sender, ScrollEventArgs e)
+        {
+
+        }
     }
 }

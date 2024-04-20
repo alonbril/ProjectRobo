@@ -195,7 +195,7 @@ namespace OpenGL
             GL.glEnable(GL.GL_LIGHTING);
             GL.glBegin(GL.GL_QUADS);
             //!!! for blended REFLECTION
-            GL.glColor4d(0, 0, 0.5, 0.3); // Adjusted color and transparency
+            GL.glColor4f(0.5f, 0.5f, 1.0f, 0.5f); // Adjusted color and transparency
             GL.glVertex3d(-3, -3, 0);
             GL.glVertex3d(-3, 3, 0);
             GL.glVertex3d(3, 3, 0);
@@ -206,6 +206,24 @@ namespace OpenGL
 
         void DrawFigures()
         {
+            //====================================
+            GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, pos);
+
+            //Draw Light Source
+            GL.glDisable(GL.GL_LIGHTING);
+            GL.glTranslatef(pos[0], pos[1], pos[2]);
+            //Yellow Light source
+            GL.glColor3f(1, 1, 0);
+            GLUT.glutSolidSphere(0.05, 8, 8);
+            GL.glTranslatef(-pos[0], -pos[1], -pos[2]);
+            //projection line from source to plane
+            GL.glBegin(GL.GL_LINES);
+            GL.glColor3d(0.5, 0.5, 0);
+            GL.glVertex3d(pos[0], pos[1], 0);
+            GL.glVertex3d(pos[0], pos[1], pos[2]);
+            GL.glEnd();
+            //=======================================
+
             GL.glEnable(GL.GL_COLOR_MATERIAL);
             GL.glEnable(GL.GL_LIGHT0);
             GL.glEnable(GL.GL_LIGHTING);
@@ -232,9 +250,10 @@ namespace OpenGL
             GL.glEnd();
             GL.glLineWidth(1);
             GL.glDisable(GL.GL_LINE_STIPPLE);
+            GL.glPopMatrix();
         }
-
-        public float[] ScrollValue = new float[10];
+        public float[] pos = new float[4];
+        public float[] ScrollValue = new float[14];
         public float zShift = 0.0f;
         public float yShift = 0.0f;
         public float xShift = 0.0f;
@@ -247,10 +266,15 @@ namespace OpenGL
 
         public void Draw()
         {
+            pos[0] = ScrollValue[11];
+            pos[1] = ScrollValue[12];
+            pos[2] = ScrollValue[13];
+            pos[3] = 1.0f; 
+            //Shadows
             if (m_uint_DC == 0 || m_uint_RC == 0)
                 return;
 
-            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
 
             GL.glLoadIdentity();
 
@@ -283,11 +307,41 @@ namespace OpenGL
             // Apply reflection transformation
             GL.glScalef(1, 1, -1); // Scale on Z axis to reverse
 
+            //=========================================
+            //only floor, draw only to STENCIL buffer
+            GL.glEnable(GL.GL_STENCIL_TEST);
+            GL.glStencilOp(GL.GL_REPLACE, GL.GL_REPLACE, GL.GL_REPLACE);
+            GL.glStencilFunc(GL.GL_ALWAYS, 1, 0xFFFFFFFF); // draw floor always
+            GL.glColorMask((byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE, (byte)GL.GL_FALSE);
+            GL.glDisable(GL.GL_DEPTH_TEST);
+
+            DrawFloor();
+
+            // restore regular settings
+            GL.glColorMask((byte)GL.GL_TRUE, (byte)GL.GL_TRUE, (byte)GL.GL_TRUE, (byte)GL.GL_TRUE);
+            GL.glEnable(GL.GL_DEPTH_TEST);
+
+            // reflection is drawn only where STENCIL buffer value equal to 1
+            GL.glStencilFunc(GL.GL_EQUAL, 1, 0xFFFFFFFF);
+            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
+
+            GL.glEnable(GL.GL_STENCIL_TEST);
+            //=========================================
             // Draw the reflected object
             GL.glTranslatef(xShift, yShift, -zShift); // Translate the object
             GL.glRotatef(xAngle, 1.0f, 0.0f, 0.0f); // Reflect the rotation
             GL.glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
             GL.glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
+
+            // really draw floor 
+            //( half-transparent ( see its color's alpha byte)))
+            // in order to see reflected objects 
+            GL.glDepthMask((byte)GL.GL_FALSE);
+            DrawFloor();
+            GL.glDepthMask((byte)GL.GL_TRUE);
+            // Disable GL.GL_STENCIL_TEST to show All, else it will be cut on GL.GL_STENCIL
+            GL.glDisable(GL.GL_STENCIL_TEST);
+
             DrawFigures(); // Assuming this method draws your dynamic object
 
             // Restore the matrix state
